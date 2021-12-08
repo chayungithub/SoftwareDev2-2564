@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Counter</title>
+    <meta name="viewport" content="width=device-width">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase.js"></script>
+    <style>
+    .container {
+        width: 450px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .gauge {
+        width: 450px;
+        height: 450px;
+    }
+
+    a:link.button,
+    a:active.button,
+    a:visited.button,
+    a:hover.button {
+        margin: 30px 5px 0 2px;
+        padding: 7px 13px;
+    }
+    </style>
+    <script type="text/javascript">
+    // Initialize Firebase
+            var firebaseRef = {};
+            // เพื่อสร้างตัวแปร Global ไว้ส่งค่าไปใช้ในส่วนอื่น ๆ
+            var backup_datas = {};
+
+            angular.module('firebaseApp', []).service('firebaseService', function() {
+                // สร้าง Function เพื่อ init Firebase เข้ากับ app เรา
+                this.initFirebase = function() {
+                    var config = {
+                        apiKey: "AIzaSyB_pocpw5VczBmnu_vgh3Kg6_X28dKgb8Y",
+                      authDomain: "datastructuretest-363e7.firebaseapp.com",
+                      databaseURL: "https://datastructuretest-363e7-default-rtdb.firebaseio.com"
+                    };
+                    firebase.initializeApp(config);
+                    firebaseRef = firebase.database().ref("Set");    
+                }
+                // สร้าง Function เพื่อเก็บ event ของ Firebase
+                this.eventFirebase = function() {
+                    firebaseRef.on('value', function(data) {
+                      const datas = Object.values(data.val());
+
+                      // ใส่ค่าเข้าตัวแปร Global
+                      backup_datas = datas;
+
+                    console.log(datas);
+                    
+                        document.getElementById('temp').innerHTML ="อุณหภูมิปัจจุบัน: " + datas[3];
+                        g1.refresh(backup_datas[3]);
+                    })
+                }
+                this.push = function(title, content) {}
+            }).controller('firebaseCtrl', function(firebaseService) {
+                // เรียกใช้งาน firebaseService ที่เราสร้างไว้
+                firebaseService.initFirebase();
+                firebaseService.eventFirebase();
+            })
+    </script>
+</head>
+
+<body ng-app="firebaseApp">
+    <div ng-controller="firebaseCtrl">
+
+        <div class="container">
+            <div id="g1" class="gauge"></div>
+            <h2 id='temp'>อุณหภูมิปัจจุบัน: </h2>
+            <a href="#" id="g1_refresh">Random Refresh</a>
+        </div>
+    </div>
+
+
+    <script src="raphael-2.1.4.min.js"></script>
+    <script src="justgage.js"></script>
+    <script>
+    var g1;
+    document.addEventListener("DOMContentLoaded", function(event) {
+        g1 = new JustGage({
+            id: "g1",
+            title: "Meter test",
+            value: 30,
+            min: 20,
+            max: 40,
+            gaugeWidthScale: 0.6,
+            counter: true,
+            titleFontColor: "red",
+            titleFontFamily: "Georgia",
+            titlePosition: "below",
+            valueFontColor: "blue",
+            valueFontFamily: "Georgia"
+        });
+
+        document.getElementById('g1_refresh').addEventListener('click', function() {
+            g1.refresh(backup_datas[3]);
+        });
+    });
+    </script>
+
+    
+</body>
+
+</html>
